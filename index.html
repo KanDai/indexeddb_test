@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>indexedDB_test</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="DB_test">
+<meta name="robots" content="noindex">
+<script>
+if ('serviceWorker' in navigator) {
+navigator.serviceWorker
+    .register('./sw.js')
+    .then(function() { console.log('Service Worker Registered') });
+}
+</script>
+</head>
+<body>
+
+<h1>indexed DBのテスト</h1>
+
+<input type="text" id="i">
+<button id="b">保存</button>
+
+<div id="out"></div>
+
+<script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
+<script>
+const id = 1
+const db = new Dexie("sample_database")
+
+db.version(1).stores({
+    sample: 'id,text'
+})
+
+const output = function(res) {
+    document.getElementById('out').innerText = res
+}
+
+db.sample.get(1, (res) => {
+    output(res.text)
+})
+
+document.getElementById('b').addEventListener('click', () => {
+    const text = document.getElementById('i').value
+
+    db.sample.put({id: id, text: text}).then (function(){
+        return db.sample.get(1)
+    }).then(function (res) {
+        output(res.text)
+    }).catch(function(error) {
+        alert ("Ooops: " + error)
+    })
+})
+</script>
+</body>
+</html>
